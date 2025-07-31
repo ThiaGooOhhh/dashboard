@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { users } from "@/data/users";
 import { cn } from "@/lib/utils";
-import { getPreference } from "@/server/server-actions";
+import { getPreference } from "@/server/cookie-readers";
 import {
   SIDEBAR_VARIANT_VALUES,
   SIDEBAR_COLLAPSIBLE_VALUES,
@@ -26,11 +26,9 @@ export default async function Layout({ children }: Readonly<{ children: ReactNod
   const cookieStore = await cookies();
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
 
-  const [sidebarVariant, sidebarCollapsible, contentLayout] = await Promise.all([
-    getPreference<SidebarVariant>("sidebar_variant", SIDEBAR_VARIANT_VALUES, "inset"),
-    getPreference<SidebarCollapsible>("sidebar_collapsible", SIDEBAR_COLLAPSIBLE_VALUES, "icon"),
-    getPreference<ContentLayout>("content_layout", CONTENT_LAYOUT_VALUES, "centered"),
-  ]);
+  const sidebarVariant = getPreference<SidebarVariant>("sidebar_variant", SIDEBAR_VARIANT_VALUES, "inset");
+  const sidebarCollapsible = getPreference<SidebarCollapsible>("sidebar_collapsible", SIDEBAR_COLLAPSIBLE_VALUES, "icon");
+  const contentLayout = getPreference<ContentLayout>("content_layout", CONTENT_LAYOUT_VALUES, "centered");
 
   const layoutPreferences = {
     contentLayout,
