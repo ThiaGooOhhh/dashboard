@@ -46,43 +46,56 @@ export interface NavGroup {
 export const sidebarItems: NavGroup[] = [
   {
     id: 1,
-    label: "Dashboards",
+    label: "Início",
     items: [
       {
-        title: "Default",
+        title: "Painel Principal",
         url: "/dashboard/default",
         icon: LayoutDashboard,
       },
+    ],
+  },
+  {
+    id: 2,
+    label: "Análises",
+    items: [
       {
         title: "CRM",
         url: "/dashboard/crm",
         icon: ChartBar,
       },
       {
-        title: "Finance",
+        title: "Vendas",
         url: "/dashboard/finance",
         icon: Banknote,
+        comingSoon: true,
       },
       {
-        title: "Analytics",
+        title: "Desempenho",
         url: "/dashboard/analytics",
         icon: Gauge,
         comingSoon: true,
       },
+    ],
+  },
+  {
+    id: 3,
+    label: "E-commerce",
+    items: [
       {
-        title: "E-commerce",
+        title: "Produtos",
         url: "/dashboard/e-commerce",
         icon: ShoppingBag,
         comingSoon: true,
       },
       {
-        title: "Academy",
-        url: "/dashboard/academy",
-        icon: GraduationCap,
+        title: "Pedidos",
+        url: "/invoice",
+        icon: ReceiptText,
         comingSoon: true,
       },
       {
-        title: "Logistics",
+        title: "Logística",
         url: "/dashboard/logistics",
         icon: Forklift,
         comingSoon: true,
@@ -90,11 +103,11 @@ export const sidebarItems: NavGroup[] = [
     ],
   },
   {
-    id: 2,
-    label: "Pages",
+    id: 4,
+    label: "Colaboração",
     items: [
       {
-        title: "Email",
+        title: "Caixa de Entrada",
         url: "/mail",
         icon: Mail,
         comingSoon: true,
@@ -106,57 +119,52 @@ export const sidebarItems: NavGroup[] = [
         comingSoon: true,
       },
       {
-        title: "Calendar",
+        title: "Calendário",
         url: "/calendar",
         icon: Calendar,
         comingSoon: true,
       },
       {
-        title: "Kanban",
+        title: "Projetos",
         url: "/kanban",
         icon: Kanban,
         comingSoon: true,
       },
+    ],
+  },
+  {
+    id: 5,
+    label: "Gestão",
+    items: [
       {
-        title: "Invoice",
-        url: "/invoice",
-        icon: ReceiptText,
-        comingSoon: true,
-      },
-      {
-        title: "Users",
+        title: "Clientes",
         url: "/users",
         icon: Users,
         comingSoon: true,
       },
       {
-        title: "Roles",
-        url: "/roles",
-        icon: Lock,
-        comingSoon: true,
-      },
-      {
-        title: "Authentication",
+        title: "Autenticação",
         url: "/auth",
         icon: Fingerprint,
-        subItems: [
-          { title: "Login v1", url: "/auth/v1/login", newTab: true },
-          { title: "Login v2", url: "/auth/v2/login", newTab: true },
-          { title: "Register v1", url: "/auth/v1/register", newTab: true },
-          { title: "Register v2", url: "/auth/v2/register", newTab: true },
-        ],
+        newTab: true,
+      },
+      {
+        title: "Autorização",
+        url: "/roles",
+        icon: Lock,
+        newTab: true,
       },
     ],
   },
   {
-    id: 3,
-    label: "Misc",
+    id: 6,
+    label: "Educação",
     items: [
       {
-        title: "Others",
+        title: "Centro de Aprendizagem",
         url: "/others",
-        icon: SquareArrowUpRight,
-        comingSoon: true,
+        icon: GraduationCap,
+        newTab: true,
       },
     ],
   },
