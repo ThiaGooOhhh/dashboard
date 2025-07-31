@@ -1,22 +1,23 @@
 
 "use client";
 
-import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { UsersIcon, HomeIcon, NavigationIcon, CheckCircleIcon, PlusIcon, SearchIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Users, Building2, MapPin, Globe, Save, Plus } from "lucide-react";
 
-interface ClienteFormData {
-  tipo: 'PF' | 'PJ' | '';
+type TipoCliente = "PF" | "PJ";
+
+interface FormData {
+  tipoCliente: TipoCliente;
   documento: string;
-  razaoSocialNome: string;
+  razaoSocial: string;
   nomeFantasia: string;
   nomeContato: string;
   email: string;
@@ -28,47 +29,45 @@ interface ClienteFormData {
   regiao: string;
   cidade: string;
   uf: string;
-  latitude: number | null;
-  longitude: number | null;
+  latitude: string;
+  longitude: string;
   ativo: boolean;
 }
 
-const initialFormData: ClienteFormData = {
-  tipo: '',
-  documento: '',
-  razaoSocialNome: '',
-  nomeFantasia: '',
-  nomeContato: '',
-  email: '',
-  telefone: '',
-  cep: '',
-  logradouro: '',
-  numero: '',
-  bairro: '',
-  regiao: '',
-  cidade: '',
-  uf: '',
-  latitude: null,
-  longitude: null,
-  ativo: true,
-};
-
 export default function ClientesPage() {
-  const [formData, setFormData] = useState<ClienteFormData>(initialFormData);
-  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [formData, setFormData] = useState<FormData>({
+    tipoCliente: "PF",
+    documento: "",
+    razaoSocial: "",
+    nomeFantasia: "",
+    nomeContato: "",
+    email: "",
+    telefone: "",
+    cep: "",
+    logradouro: "",
+    numero: "",
+    bairro: "",
+    regiao: "",
+    cidade: "",
+    uf: "",
+    latitude: "",
+    longitude: "",
+    ativo: true,
+  });
 
-  const handleInputChange = (field: keyof ClienteFormData, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+  const [buscandoCep, setBuscandoCep] = useState(false);
+
+  const handleInputChange = (field: keyof FormData, value: string | boolean) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const buscarCEP = async (cep: string) => {
+  const buscarCep = async (cep: string) => {
     if (cep.length === 8) {
+      setBuscandoCep(true);
       try {
         const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
         const data = await response.json();
+        
         if (!data.erro) {
           setFormData(prev => ({
             ...prev,
@@ -79,58 +78,73 @@ export default function ClientesPage() {
           }));
         }
       } catch (error) {
-        console.error('Erro ao buscar CEP:', error);
+        console.error("Erro ao buscar CEP:", error);
       }
+      setBuscandoCep(false);
+    }
+  };
+
+  const handleCepChange = (cep: string) => {
+    const cepLimpo = cep.replace(/\D/g, "");
+    handleInputChange("cep", cepLimpo);
+    if (cepLimpo.length === 8) {
+      buscarCep(cepLimpo);
+    }
+  };
+
+  const formatarDocumento = (documento: string, tipo: TipoCliente) => {
+    const numeros = documento.replace(/\D/g, "");
+    if (tipo === "CPF") {
+      return numeros.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+    } else {
+      return numeros.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Dados do cliente:', formData);
-    // Aqui você implementaria a lógica para salvar o cliente
-    alert('Cliente cadastrado com sucesso!');
-    setFormData(initialFormData);
-    setMostrarFormulario(false);
+    console.log("Dados do cliente:", formData);
+    // Aqui você implementaria a lógica de salvamento
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Gestão de Clientes</h1>
-          <p className="text-muted-foreground">Cadastre e gerencie seus clientes</p>
+          <h1 className="text-3xl font-bold">Cadastro de Clientes</h1>
+          <p className="text-muted-foreground">
+            Gerencie o cadastro de clientes pessoa física e jurídica
+          </p>
         </div>
-        <Button 
-          onClick={() => setMostrarFormulario(!mostrarFormulario)}
-          className="flex items-center gap-2"
-        >
-          <PlusIcon className="w-4 h-4" />
-          Novo Cliente
-        </Button>
+        <Badge variant="outline" className="text-sm">
+          {formData.tipoCliente === "PF" ? "Pessoa Física" : "Pessoa Jurídica"}
+        </Badge>
       </div>
 
-      {mostrarFormulario && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <UsersIcon className="w-5 h-5" />
-              Cadastro de Novo Cliente
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-8">
-              {/* Seção: Identificação do Cliente */}
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <UsersIcon className="w-5 h-5 text-blue-500" />
-                  <h3 className="text-lg font-semibold">Identificação do Cliente</h3>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="tipo">Tipo de Cliente *</Label>
-                    <Select value={formData.tipo} onValueChange={(value) => handleInputChange('tipo', value)}>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Coluna Principal - Identificação */}
+          <div className="lg:col-span-2 space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  Identificação do Cliente
+                </CardTitle>
+                <CardDescription>
+                  Informações básicas e fiscais do cliente
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="tipoCliente">Tipo de Cliente *</Label>
+                    <Select 
+                      value={formData.tipoCliente} 
+                      onValueChange={(value: TipoCliente) => handleInputChange("tipoCliente", value)}
+                    >
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione o tipo" />
+                        <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="PF">Pessoa Física</SelectItem>
@@ -139,264 +153,257 @@ export default function ClientesPage() {
                     </Select>
                   </div>
 
-                  <div>
+                  <div className="space-y-2">
                     <Label htmlFor="documento">
-                      {formData.tipo === 'PJ' ? 'CNPJ *' : 'CPF *'}
+                      {formData.tipoCliente === "PF" ? "CPF" : "CNPJ"} *
                     </Label>
                     <Input
                       id="documento"
-                      value={formData.documento}
-                      onChange={(e) => handleInputChange('documento', e.target.value)}
-                      placeholder={formData.tipo === 'PJ' ? '00.000.000/0000-00' : '000.000.000-00'}
-                      required
+                      value={formatarDocumento(formData.documento, formData.tipoCliente)}
+                      onChange={(e) => handleInputChange("documento", e.target.value)}
+                      placeholder={formData.tipoCliente === "PF" ? "000.000.000-00" : "00.000.000/0000-00"}
+                      maxLength={formData.tipoCliente === "PF" ? 14 : 18}
                     />
                   </div>
+                </div>
 
-                  <div>
-                    <Label htmlFor="razaoSocialNome">
-                      {formData.tipo === 'PJ' ? 'Razão Social *' : 'Nome Completo *'}
-                    </Label>
+                <div className="space-y-2">
+                  <Label htmlFor="razaoSocial">
+                    {formData.tipoCliente === "PF" ? "Nome Completo" : "Razão Social"} *
+                  </Label>
+                  <Input
+                    id="razaoSocial"
+                    value={formData.razaoSocial}
+                    onChange={(e) => handleInputChange("razaoSocial", e.target.value)}
+                    placeholder={formData.tipoCliente === "PF" ? "Nome completo" : "Razão social da empresa"}
+                  />
+                </div>
+
+                {formData.tipoCliente === "PJ" && (
+                  <div className="space-y-2">
+                    <Label htmlFor="nomeFantasia">Nome Fantasia</Label>
                     <Input
-                      id="razaoSocialNome"
-                      value={formData.razaoSocialNome}
-                      onChange={(e) => handleInputChange('razaoSocialNome', e.target.value)}
-                      required
+                      id="nomeFantasia"
+                      value={formData.nomeFantasia}
+                      onChange={(e) => handleInputChange("nomeFantasia", e.target.value)}
+                      placeholder="Nome fantasia (opcional)"
                     />
                   </div>
+                )}
 
-                  {formData.tipo === 'PJ' && (
-                    <div>
-                      <Label htmlFor="nomeFantasia">Nome Fantasia</Label>
-                      <Input
-                        id="nomeFantasia"
-                        value={formData.nomeFantasia}
-                        onChange={(e) => handleInputChange('nomeFantasia', e.target.value)}
-                      />
-                    </div>
-                  )}
+                <Separator />
 
-                  <div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
                     <Label htmlFor="nomeContato">Nome do Contato *</Label>
                     <Input
                       id="nomeContato"
                       value={formData.nomeContato}
-                      onChange={(e) => handleInputChange('nomeContato', e.target.value)}
-                      required
+                      onChange={(e) => handleInputChange("nomeContato", e.target.value)}
+                      placeholder="Nome do responsável"
                     />
                   </div>
 
-                  <div>
+                  <div className="space-y-2">
                     <Label htmlFor="email">E-mail *</Label>
                     <Input
                       id="email"
                       type="email"
                       value={formData.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      required
+                      onChange={(e) => handleInputChange("email", e.target.value)}
+                      placeholder="email@exemplo.com"
                     />
                   </div>
 
-                  <div>
+                  <div className="space-y-2">
                     <Label htmlFor="telefone">Telefone *</Label>
                     <Input
                       id="telefone"
                       value={formData.telefone}
-                      onChange={(e) => handleInputChange('telefone', e.target.value)}
-                      placeholder="(00) 00000-0000"
-                      required
+                      onChange={(e) => handleInputChange("telefone", e.target.value)}
+                      placeholder="(11) 99999-9999"
                     />
                   </div>
                 </div>
-              </div>
+              </CardContent>
+            </Card>
 
-              <Separator />
-
-              {/* Seção: Endereço */}
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <HomeIcon className="w-5 h-5 text-blue-500" />
-                  <h3 className="text-lg font-semibold">Endereço</h3>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5" />
+                  Endereço
+                </CardTitle>
+                <CardDescription>
+                  Localização física do cliente
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
                     <Label htmlFor="cep">CEP *</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        id="cep"
-                        value={formData.cep}
-                        onChange={(e) => {
-                          const cep = e.target.value.replace(/\D/g, '');
-                          handleInputChange('cep', cep);
-                          if (cep.length === 8) {
-                            buscarCEP(cep);
-                          }
-                        }}
-                        placeholder="00000-000"
-                        maxLength={8}
-                        required
-                      />
-                      <Button type="button" variant="outline" size="icon">
-                        <SearchIcon className="w-4 h-4" />
-                      </Button>
-                    </div>
+                    <Input
+                      id="cep"
+                      value={formData.cep}
+                      onChange={(e) => handleCepChange(e.target.value)}
+                      placeholder="00000-000"
+                      maxLength={8}
+                      disabled={buscandoCep}
+                    />
+                    {buscandoCep && <p className="text-sm text-muted-foreground">Buscando...</p>}
                   </div>
 
-                  <div className="md:col-span-2">
+                  <div className="md:col-span-2 space-y-2">
                     <Label htmlFor="logradouro">Logradouro *</Label>
                     <Input
                       id="logradouro"
                       value={formData.logradouro}
-                      onChange={(e) => handleInputChange('logradouro', e.target.value)}
-                      required
+                      onChange={(e) => handleInputChange("logradouro", e.target.value)}
+                      placeholder="Rua, Avenida, etc."
                     />
                   </div>
+                </div>
 
-                  <div>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="space-y-2">
                     <Label htmlFor="numero">Número *</Label>
                     <Input
                       id="numero"
                       value={formData.numero}
-                      onChange={(e) => handleInputChange('numero', e.target.value)}
-                      required
+                      onChange={(e) => handleInputChange("numero", e.target.value)}
+                      placeholder="123"
                     />
                   </div>
 
-                  <div>
+                  <div className="space-y-2">
                     <Label htmlFor="bairro">Bairro *</Label>
                     <Input
                       id="bairro"
                       value={formData.bairro}
-                      onChange={(e) => handleInputChange('bairro', e.target.value)}
-                      required
+                      onChange={(e) => handleInputChange("bairro", e.target.value)}
+                      placeholder="Bairro"
                     />
                   </div>
 
-                  <div>
+                  <div className="space-y-2">
                     <Label htmlFor="regiao">Região</Label>
                     <Input
                       id="regiao"
                       value={formData.regiao}
-                      onChange={(e) => handleInputChange('regiao', e.target.value)}
+                      onChange={(e) => handleInputChange("regiao", e.target.value)}
+                      placeholder="Região (opcional)"
                     />
                   </div>
 
-                  <div>
-                    <Label htmlFor="cidade">Cidade *</Label>
-                    <Input
-                      id="cidade"
-                      value={formData.cidade}
-                      onChange={(e) => handleInputChange('cidade', e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="uf">Estado (UF) *</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="uf">UF *</Label>
                     <Input
                       id="uf"
                       value={formData.uf}
-                      onChange={(e) => handleInputChange('uf', e.target.value)}
+                      onChange={(e) => handleInputChange("uf", e.target.value)}
+                      placeholder="SP"
                       maxLength={2}
-                      required
                     />
                   </div>
                 </div>
-              </div>
 
-              <Separator />
+                <div className="space-y-2">
+                  <Label htmlFor="cidade">Cidade *</Label>
+                  <Input
+                    id="cidade"
+                    value={formData.cidade}
+                    onChange={(e) => handleInputChange("cidade", e.target.value)}
+                    placeholder="Nome da cidade"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-              {/* Seção: Localização e Status */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                  <div className="flex items-center gap-2 mb-4">
-                    <NavigationIcon className="w-5 h-5 text-blue-500" />
-                    <h3 className="text-lg font-semibold">Localização Geográfica</h3>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="latitude">Latitude</Label>
-                      <Input
-                        id="latitude"
-                        type="number"
-                        step="any"
-                        value={formData.latitude || ''}
-                        onChange={(e) => handleInputChange('latitude', e.target.value ? parseFloat(e.target.value) : null)}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="longitude">Longitude</Label>
-                      <Input
-                        id="longitude"
-                        type="number"
-                        step="any"
-                        value={formData.longitude || ''}
-                        onChange={(e) => handleInputChange('longitude', e.target.value ? parseFloat(e.target.value) : null)}
-                      />
-                    </div>
-                  </div>
+          {/* Coluna Lateral - Status e Localização */}
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Building2 className="h-5 w-5" />
+                  Status
+                </CardTitle>
+                <CardDescription>
+                  Define se o cliente está ativo
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="ativo"
+                    checked={formData.ativo}
+                    onCheckedChange={(checked) => handleInputChange("ativo", checked)}
+                  />
+                  <Label htmlFor="ativo">
+                    Cliente {formData.ativo ? "Ativo" : "Inativo"}
+                  </Label>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Globe className="h-5 w-5" />
+                  Localização Geográfica
+                </CardTitle>
+                <CardDescription>
+                  Coordenadas para roteirização
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="latitude">Latitude</Label>
+                  <Input
+                    id="latitude"
+                    value={formData.latitude}
+                    onChange={(e) => handleInputChange("latitude", e.target.value)}
+                    placeholder="-23.5505"
+                    type="number"
+                    step="any"
+                  />
                 </div>
 
-                <div>
-                  <div className="flex items-center gap-2 mb-4">
-                    <CheckCircleIcon className="w-5 h-5 text-blue-500" />
-                    <h3 className="text-lg font-semibold">Status</h3>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Switch
-                      id="ativo"
-                      checked={formData.ativo}
-                      onCheckedChange={(checked) => handleInputChange('ativo', checked)}
-                    />
-                    <Label htmlFor="ativo">Cliente Ativo</Label>
-                    <Badge variant={formData.ativo ? "default" : "secondary"}>
-                      {formData.ativo ? "Ativo" : "Inativo"}
-                    </Badge>
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="longitude">Longitude</Label>
+                  <Input
+                    id="longitude"
+                    value={formData.longitude}
+                    onChange={(e) => handleInputChange("longitude", e.target.value)}
+                    placeholder="-46.6333"
+                    type="number"
+                    step="any"
+                  />
                 </div>
-              </div>
+              </CardContent>
+            </Card>
 
-              <Separator />
+            <Card className="bg-muted/50">
+              <CardContent className="pt-6">
+                <div className="text-center space-y-2">
+                  <div className="text-2xl font-bold text-primary">248</div>
+                  <p className="text-sm text-muted-foreground">Clientes Cadastrados</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
 
-              {/* Botões de Ação */}
-              <div className="flex gap-4 justify-end">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => setMostrarFormulario(false)}
-                >
-                  Cancelar
-                </Button>
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => setFormData(initialFormData)}
-                >
-                  Limpar
-                </Button>
-                <Button type="submit">
-                  Cadastrar Cliente
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Lista de Clientes (placeholder) */}
-      {!mostrarFormulario && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Clientes Cadastrados</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-8 text-muted-foreground">
-              <UsersIcon className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p>Nenhum cliente cadastrado ainda.</p>
-              <p className="text-sm">Clique em "Novo Cliente" para começar.</p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+        <div className="flex justify-end space-x-4">
+          <Button type="button" variant="outline">
+            Cancelar
+          </Button>
+          <Button type="submit" className="flex items-center gap-2">
+            <Save className="h-4 w-4" />
+            Salvar Cliente
+          </Button>
+        </div>
+      </form>
     </div>
   );
 }
