@@ -5,6 +5,7 @@ import { LayoutDashboard, ChartBar, Gauge, ShoppingBag, GraduationCap, Forklift,
 
 import { Button } from "@/components/ui/button";
 import {
+  Command,
   CommandDialog,
   CommandEmpty,
   CommandGroup,
