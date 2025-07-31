@@ -1,12 +1,12 @@
 import { cookies } from "next/headers";
 
-export function getValueFromCookie(key: string): string | undefined {
-  const cookieStore = cookies();
+export async function getValueFromCookie(key: string): Promise<string | undefined> {
+  const cookieStore = await cookies();
   return cookieStore.get(key)?.value;
 }
 
-export function getPreference<T extends string>(key: string, allowed: readonly T[], fallback: T): T {
-  const cookieStore = cookies();
+export async function getPreference<T extends string>(key: string, allowed: readonly T[], fallback: T): Promise<T> {
+  const cookieStore = await cookies();
   const cookie = cookieStore.get(key);
   const value = cookie ? cookie.value.trim() : undefined;
   return allowed.includes(value as T) ? (value as T) : fallback;
