@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -220,14 +220,18 @@ const clientesColumns: ColumnDef<Cliente>[] = [
 export default function ClientesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedClients, setSelectedClients] = useState<string[]>([]);
+  const [filteredData, setFilteredData] = useState(clientesData);
 
-  // Filtrar dados baseado na busca
-  const filteredData = clientesData.filter(cliente =>
-    cliente.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    cliente.documento.includes(searchTerm) ||
-    cliente.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    cliente.contato.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filtrar dados baseado na busca usando useEffect
+  useEffect(() => {
+    const filtered = clientesData.filter(cliente =>
+      cliente.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      cliente.documento.includes(searchTerm) ||
+      cliente.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      cliente.contato.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredData(filtered);
+  }, [searchTerm]);
 
   const table = useDataTableInstance({
     data: filteredData,
