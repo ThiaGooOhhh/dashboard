@@ -64,9 +64,8 @@ export const sidebarItems: NavGroup[] = [
     items: [
       {
         title: "Clientes",
-        url: "/users",
+        url: "/dashboard/clientes",
         icon: Users,
-        comingSoon: true,
       },
     ],
   },
