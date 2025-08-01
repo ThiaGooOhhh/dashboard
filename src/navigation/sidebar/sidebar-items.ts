@@ -16,6 +16,9 @@ import {
   Gauge,
   GraduationCap,
   type LucideIcon,
+  Activity,
+  Shield,
+  Server,
 } from "lucide-react";
 
 export interface NavSubItem {
@@ -57,6 +60,18 @@ export const sidebarItems: NavGroup[] = [
   },
   {
     id: 2,
+    label: "Cadastro",
+    items: [
+      {
+        title: "Clientes",
+        url: "/users",
+        icon: Users,
+        comingSoon: true,
+      },
+    ],
+  },
+  {
+    id: 3,
     label: "Análises",
     items: [
       {
@@ -79,7 +94,7 @@ export const sidebarItems: NavGroup[] = [
     ],
   },
   {
-    id: 3,
+    id: 4,
     label: "E-commerce",
     items: [
       {
@@ -103,7 +118,7 @@ export const sidebarItems: NavGroup[] = [
     ],
   },
   {
-    id: 4,
+    id: 5,
     label: "Colaboração",
     items: [
       {
@@ -133,15 +148,9 @@ export const sidebarItems: NavGroup[] = [
     ],
   },
   {
-    id: 5,
+    id: 6,
     label: "Gestão",
     items: [
-      {
-        title: "Clientes",
-        url: "/users",
-        icon: Users,
-        comingSoon: true,
-      },
       {
         title: "Autenticação",
         url: "/auth",
@@ -157,7 +166,7 @@ export const sidebarItems: NavGroup[] = [
     ],
   },
   {
-    id: 6,
+    id: 7,
     label: "Educação",
     items: [
       {
@@ -165,6 +174,30 @@ export const sidebarItems: NavGroup[] = [
         url: "/others",
         icon: GraduationCap,
         newTab: true,
+      },
+    ],
+  },
+  {
+    id: 8,
+    label: "Monitoramento",
+    items: [
+      {
+        title: "Sistema",
+        url: "/dashboard/monitoring/system",
+        icon: Activity,
+        comingSoon: true,
+      },
+      {
+        title: "Segurança",
+        url: "/dashboard/monitoring/security",
+        icon: Shield,
+        comingSoon: true,
+      },
+      {
+        title: "Servidores",
+        url: "/dashboard/monitoring/servers",
+        icon: Server,
+        comingSoon: true,
       },
     ],
   },
